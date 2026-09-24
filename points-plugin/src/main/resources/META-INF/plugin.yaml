@@ -1,0 +1,6 @@
+id: points-copilot
+name: 积分商城助手
+version: 1.0.0
+author: xfg-studio
+description: 积分商城助手，支持积分账户查询、商品浏览与推荐、积分兑换（含兑换码）、赚分任务与积分流水查询。
+entrypoint: cn.xiaofuge.points.plugin.PointsPlugin

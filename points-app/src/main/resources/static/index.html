@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>积分商城 · Points Mall</title>
+<style>
+  :root{
+    --bg:#fbf7ef; --card:#fff; --ink:#332b20; --sub:#8b7f6c; --line:#eee4d4;
+    --gold:#c8860d; --gold-d:#a06a06; --gold-soft:#fdf3dc; --hot:#d94f4f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+  header{background:linear-gradient(120deg,#8a5a04,#c8860d 60%,#e0a52e);color:#fff;padding:18px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  header h1{font-size:21px;font-weight:700}
+  header .meta{font-size:13px;opacity:.9}
+  .wrap{max-width:1440px;margin:0 auto;padding:20px 24px 40px;display:flex;gap:20px;align-items:flex-start}
+  .main{flex:1;min-width:0}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:18px}
+  .panel h2{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .panel h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--gold)}
+  .acct{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat{background:linear-gradient(135deg,#fdf6e4,#fbefd2);border:1px solid #f0e2c2;border-radius:10px;padding:12px 14px}
+  .stat .k{font-size:12px;color:var(--sub)}
+  .stat .v{font-size:22px;font-weight:700;margin-top:4px;color:var(--gold-d)}
+  .stat .v small{font-size:12px;color:var(--sub);font-weight:400}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .cat{border:1px solid var(--line);background:#fff;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:var(--sub)}
+  .cat.on{background:var(--gold);border-color:var(--gold);color:#fff}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .g{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;display:flex;flex-direction:column;gap:6px;position:relative}
+  .g .ic{font-size:34px}
+  .g .n{font-weight:600;font-size:14px}
+  .g .cat{font-size:11px;color:var(--sub)}
+  .g .cost{font-size:18px;font-weight:700;color:var(--gold-d)}
+  .g .cost small{font-size:11px;color:var(--sub);font-weight:400}
+  .g .mk{font-size:11px;color:var(--sub);text-decoration:line-through}
+  .g .stock{font-size:11px;color:var(--sub)}
+  .g .low{color:var(--hot);font-weight:600}
+  .g button{border:none;background:var(--gold);color:#fff;border-radius:8px;padding:7px 0;font-size:13px;cursor:pointer}
+  .g button:disabled{background:#d8cdb8;cursor:not-allowed}
+  .g .badge-hot{position:absolute;top:10px;right:10px;font-size:10px;color:#fff;background:var(--hot);border-radius:5px;padding:1px 6px;font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:#faf5ea;text-align:left;padding:8px 10px;color:var(--sub);border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:8px 10px;border-bottom:1px solid #f5efe3}
+  tr:last-child td{border-bottom:none}
+  .up{color:var(--gold-d);font-weight:600}.down{color:var(--hot)}
+  .taskrow{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px dashed var(--line);font-size:13px}
+  .taskrow:last-child{border-bottom:none}
+  .taskrow .ic{font-size:20px}
+  .taskrow .nm{font-weight:600;flex:1}
+  .taskrow .nm small{display:block;color:var(--sub);font-weight:400;font-size:11px}
+  .taskrow .rw{color:var(--gold-d);font-weight:700}
+  .taskrow button{border:1px solid var(--gold);background:#fff;color:var(--gold-d);border-radius:7px;padding:4px 12px;font-size:12px;cursor:pointer}
+  .taskrow button:disabled{border-color:var(--line);color:#b9ad97;cursor:not-allowed}
+  /* AI */
+  .side{width:380px;flex-shrink:0;position:sticky;top:16px}
+  .ai{background:var(--card);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;height:calc(100vh - 60px);overflow:hidden}
+  .ai-head{background:linear-gradient(120deg,#c8860d,#e0a52e);color:#fff;padding:14px 16px;font-weight:600;font-size:15px}
+  .ai-head small{display:block;font-weight:400;font-size:11px;opacity:.85;margin-top:2px}
+  .ai-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#fdfaf3}
+  .msg{max-width:88%;padding:9px 12px;border-radius:10px;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+  .msg.user{align-self:flex-end;background:var(--gold);color:#fff;border-bottom-right-radius:3px}
+  .msg.bot{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:3px}
+  .ai-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:#fff}
+  .ai-input textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:13px;font-family:inherit;height:44px;outline:none}
+  .ai-input textarea:focus{border-color:var(--gold)}
+  .ai-input button{background:var(--gold);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:13px;cursor:pointer}
+  .ai-input button:disabled{opacity:.55;cursor:not-allowed}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 10px;background:#fff}
+  .chip{font-size:11px;color:var(--gold-d);background:var(--gold-soft);border:1px solid #ecdcb8;border-radius:20px;padding:3px 10px;cursor:pointer}
+  .hint{font-size:11px;color:var(--sub);padding:0 14px 10px;background:#fff}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>🪙 积分商城</h1><div class="meta">赚积分 · 兑好物 · 2026-09-24</div></div>
+  <div class="meta" id="headUser">…</div>
+</header>
+<div class="wrap">
+  <div class="main">
+    <div class="panel">
+      <h2><span class="dot"></span>我的账户</h2>
+      <div class="acct" id="acct"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="dot"></span>赚积分任务</h2>
+      <div id="tasks"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="dot"></span>兑换商城</h2>
+      <div class="toolbar" id="cats"></div>
+      <div class="grid" id="goods"></div>
+    </div>
+    <div class="panel">
+      <h2><span class="dot"></span>积分流水</h2>
+      <table><thead><tr><th>时间</th><th>变动</th><th>说明</th></tr></thead><tbody id="ledger"></tbody></table>
+    </div>
+  </div>
+  <aside class="side">
+    <div class="ai">
+      <div class="ai-head">🤖 积分商城助手<small>points-copilot · 查积分 / 推荐兑换 / 做任务 / 兑换码</small></div>
+      <div class="ai-log" id="log"></div>
+      <div class="chips" id="chips"></div>
+      <div class="hint">Enter 发送 · Shift+Enter 换行</div>
+      <div class="ai-input">
+        <textarea id="q" placeholder="例如：12650 积分能换什么？帮我推荐"></textarea>
+        <button id="send">发送</button>
+      </div>
+    </div>
+  </aside>
+</div>
+<script>
+const UID = 'u01';
+let curCat = '';
+async function j(url, opt){ const r = await fetch(url,opt); const d = await r.json(); return d.data!==undefined?d.data:d; }
+async function refresh(){
+  const a = await j('/api/account?userId='+UID);
+  document.getElementById('headUser').textContent = `${a.icon||''} ${a.name} · ${a.tier}`;
+  document.getElementById('acct').innerHTML = `
+    <div class="stat"><div class="k">当前积分</div><div class="v">${a.balance.toLocaleString()}</div></div>
+    <div class="stat"><div class="k">累计获得</div><div class="v">${a.totalEarned.toLocaleString()}</div></div>
+    <div class="stat"><div class="k">累计消费</div><div class="v">${a.totalSpent.toLocaleString()}</div></div>
+    <div class="stat"><div class="k">即将过期</div><div class="v" style="color:var(--hot)">${a.expiringSoon.toLocaleString()}</div></div>`;
+  const ts = await j('/api/tasks');
+  document.getElementById('tasks').innerHTML = ts.map(t=>`
+    <div class="taskrow"><span class="ic">${t.icon}</span>
+      <span class="nm">${t.name}<small>${t.rule} · 今日 ${t.doneToday}/${t.dailyLimit}</small></span>
+      <span class="rw">+${t.reward}</span>
+      <button ${t.doneToday>=t.dailyLimit?'disabled':''} onclick="doTask('${t.id}')">${t.doneToday>=t.dailyLimit?'已完成':'去做任务'}</button>
+    </div>`).join('');
+  renderCats(); loadGoods();
+  const lg = await j('/api/ledger?userId='+UID);
+  document.getElementById('ledger').innerHTML = lg.map(l=>`
+    <tr><td>${l.time}</td><td class="${l.delta>0?'up':'down'}">${l.delta>0?'+':''}${l.delta}</td><td>${l.reason}</td></tr>`).join('');
+}
+function renderCats(){
+  const cats = ['','话费流量','视听会员','餐饮美食','数码周边','居家生活','购物卡券'];
+  document.getElementById('cats').innerHTML = cats.map(c=>
+    `<span class="cat ${curCat===c?'on':''}" onclick="curCat='${c}';renderCats();loadGoods()">${c||'全部'}</span>`).join('');
+}
+async function loadGoods(){
+  const gs = await j('/api/goods'+(curCat?'?category='+curCat:''));
+  document.getElementById('goods').innerHTML = gs.map(g=>`
+    <div class="g">
+      ${g.hot?'<span class="badge-hot">热兑</span>':''}
+      <div class="ic">${g.icon}</div>
+      <div class="n">${g.name}</div>
+      <div class="cat">${g.category} · 已兑 ${g.exchanged.toLocaleString()}</div>
+      <div class="cost">${g.cost.toLocaleString()} <small>积分</small> <span class="mk">¥${g.marketPrice}</span></div>
+      <div class="stock ${g.stock<20?'low':''}">${g.stock<20?'仅剩 '+g.stock+' 件':'库存 '+g.stock}</div>
+      <button ${g.stock<1?'disabled':''} onclick="redeem('${g.id}')">立即兑换</button>
+    </div>`).join('');
+}
+async function redeem(gid){
+  const r = await j('/api/redeem',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:UID,goodsId:gid,quantity:1})});
+  alert(r.ok ? `兑换成功！\n商品：${r.goods}\n兑换码：${r.code}\n消耗 ${r.cost} 积分，剩余 ${r.balanceAfter}` : r.message);
+  refresh();
+}
+async function doTask(kid){
+  const r = await j('/api/task/do',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:UID,taskId:kid})});
+  if(!r.ok) alert(r.message); refresh();
+}
+const log = document.getElementById('log'), q = document.getElementById('q'), btn = document.getElementById('send');
+function add(cls,t){ const d=document.createElement('div'); d.className='msg '+cls; d.textContent=t; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
+const CHIPS = ['我的积分还能换什么','推荐一个高性价比兑换','帮我做今天的签到任务','查我的积分流水'];
+function setChips(){
+  const el = document.getElementById('chips');
+  el.innerHTML = CHIPS.map(t=>`<span class="chip">${t}</span>`).join('');
+  el.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{q.value=c.textContent;send();});
+}
+async function send(){
+  const text = q.value.trim(); if(!text||btn.disabled) return;
+  q.value=''; btn.disabled=true; add('user',text);
+  const b = add('bot','…');
+  try{
+    const resp = await fetch('/api/assistant/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text})});
+    const reader = resp.body.getReader(), dec = new TextDecoder();
+    let buf='', out='';
+    while(true){
+      const {done,value} = await reader.read(); if(done) break;
+      buf += dec.decode(value,{stream:true});
+      let idx;
+      while((idx=buf.indexOf('\n\n'))>=0){
+        const blk = buf.slice(0,idx); buf = buf.slice(idx+2);
+        let ev='', data='';
+        for(const line of blk.split('\n')){
+          if(line.startsWith('event:')) ev = line.slice(6).trim();
+          if(line.startsWith('data:')) data += line.slice(5).trim();
+        }
+        if(!data) continue;
+        try{
+          const o = JSON.parse(data);
+          if(ev==='chunk' && o.content) out += o.content;
+          else if(o.type==='text' && o.delta) out += o.delta;
+          else if(typeof o.content==='string') out += o.content;
+        }catch(e){}
+        b.textContent = out || '…'; log.scrollTop = log.scrollHeight;
+      }
+    }
+    if(!out) b.textContent = '（未收到回复，请确认本地 DSH 已启动且插件已激活）';
+  }catch(e){ b.textContent = '连接失败：'+e.message; }
+  btn.disabled=false; setChips(); refresh();
+}
+btn.onclick = send;
+q.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} });
+setChips(); refresh();
+</script>
+</body>
+</html>
